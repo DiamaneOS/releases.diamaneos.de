@@ -20,9 +20,13 @@ class PublicationTests(unittest.TestCase):
         (self.root / 'releases').mkdir()
         (self.root / 'releases/FP6-stable').write_text('fixture\n')
         self.bin = self.root / 'bin'; self.bin.mkdir()
-        for name in ('brotli', 'zopfli', 'rsync'):
+        for name, body in (
+            ('brotli', 'touch "$1.br"'),
+            ('zopfli', 'touch "$1.gz"'),
+            ('rsync', 'exit 0'),
+        ):
             path = self.bin / name
-            path.write_text('#!/bin/sh\nexit 0\n'); path.chmod(0o755)
+            path.write_text('#!/bin/sh\n' + body + '\n'); path.chmod(0o755)
         self.transport = self.root / 'transport'
         self.transport.write_text('#!/bin/sh\nprintf "%s\\n" "$1" >> "$TEST_OPERATIONS"\n'
                                   '[ "$1" != release-payloads ] || [ "${FAIL_PAYLOAD:-0}" = 0 ]\n')
