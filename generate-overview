@@ -1,16 +1,25 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
+from pathlib import Path
 
-devices = "rango", "mustang", "blazer", "frankel", "comet", "komodo", "caiman", "tokay", "akita", "husky", "shiba", "felix", "tangorpro", "lynx", "cheetah", "panther", "bluejay", "raven", "oriole"
+devices = ("FP6",)
 channels = "stable", "beta", "alpha"
 
 releases = {}
 
 for device in devices:
     for channel in channels:
-        with open("releases/" + device + "-" + channel) as metadata:
-            releases.setdefault(device, {})[channel] = metadata.read().split(" ")[0]
+        selector = Path("releases") / (device + "-" + channel)
+        if not selector.exists():
+            continue  # Skip channels without a selector file.
+        value = selector.read_text().split()
+        if not value:
+            raise SystemExit("empty release selector: " + str(selector))
+        releases.setdefault(device, {})[channel] = value[0]
+
+if not releases:
+    raise SystemExit("no channel selector found; refusing to write an empty overview")
 
 with open("overview.json", "w") as output:
     json.dump(releases, output, separators=(',', ':'))
