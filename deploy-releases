@@ -1,16 +1,18 @@
 #!/bin/bash
-
 set -o errexit -o nounset -o pipefail
 
-exec {fd}< releases
-if ! flock -n $fd; then
-    echo releases already locked >&2
-    exit 1
+transport=${DIAMANEOS_PUBLICATION_TRANSPORT:?Set the publication transport executable}
+if [[ $transport != /* || ! -f $transport || ! -x $transport || ! -O $transport || -L $transport ]] ||
+        [[ -n $(find "$transport" \( -perm -020 -o -perm -002 \) -print) ]]; then
+    echo 'Publication transport must be an absolute, protected executable.' >&2
+    exit 2
 fi
 
-. servers.sh
-
-rm -f logs/*.log
+exec {fd}< releases
+if ! flock -n "$fd"; then
+    echo 'Release directory is locked.' >&2
+    exit 1
+fi
 
 rm -f overview.json overview.json.br overview.json.gz
 ./generate-overview
@@ -19,5 +21,6 @@ zopfli overview.json
 rsync -c overview.json{,.br,.gz} releases/
 rm overview.json overview.json.br overview.json.gz
 
-parallel "rsync -rptv --chmod=D755,F644 --progress --delete --fsync --preallocate releases/ {}:/srv/releases >logs/{}.log 2>&1" ::: ${servers[@]}
-tail -n +1 logs/*.log
+# Complete immutable payload publication before exposing any channel selectors.
+"$transport" release-payloads "$PWD/releases"
+"$transport" release-selectors "$PWD/releases"

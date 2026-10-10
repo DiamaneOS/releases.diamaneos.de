@@ -6,3 +6,7 @@
 /static-production/
 /static-tmp/
 /venv/
+
+hosts.private.sh
+
+servers.private.sh
