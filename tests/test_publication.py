@@ -1,4 +1,4 @@
-"""Local phase-order checks; no SSH or remote publication occurs."""
+"""Local phase-order checks. No SSH or remote publication occurs."""
 import os
 import platform
 from pathlib import Path
