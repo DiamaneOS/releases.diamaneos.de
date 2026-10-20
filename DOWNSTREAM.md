@@ -2,7 +2,7 @@
 
 Upstream provenance is recorded in [UPSTREAM.json](UPSTREAM.json). The upstream MIT license is retained in [LICENSE](LICENSE).
 
-Nginx serves OS and application files from read-only publication roots. HTTPS requires TLS 1.3. DNS resolution uses systemd-resolved. Session tickets rotate through the shared infrastructure scripts. This repository defines no SUPL listener.
+Nginx serves OS and application files from read-only publication roots. On the Apps hosts, `/grapheneos/` serves GrapheneOS's catalog and APKs from `/srv/apps.diamaneos.de-grapheneos`, written only by apps.diamaneos.de's `grapheneos-mirror.py` after its checks. HTTPS requires TLS 1.3. DNS resolution uses systemd-resolved. Session tickets rotate through the shared infrastructure scripts. This repository defines no SUPL listener.
 
 The Debian deployment uses [DiamaneOS/infrastructure](https://github.com/DiamaneOS/infrastructure/tree/main/debian). Targets are explicit, and request logs are disabled. Gzip negotiation and explicit compressed-package paths retain their upstream behavior without a separately rebuilt Brotli module.
 
