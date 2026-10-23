@@ -48,6 +48,13 @@ class PublicationTests(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertEqual(['release-payloads'], (self.root / 'operations').read_text().splitlines())
 
+    def test_overview_is_canonical(self):
+        (self.root / 'releases/FP6-alpha').write_text('2 1792691126 FP6 alpha\n')
+        result = subprocess.run(['python3', str(self.root / 'generate-overview')], cwd=self.root,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(b'{"FP6":{"alpha":"2","stable":"fixture"}}\n', (self.root / 'overview.json').read_bytes())
+
     def test_missing_selectors_do_not_produce_empty_overview(self):
         (self.root / 'releases/FP6-stable').unlink()
         result = subprocess.run(['python3', str(self.root / 'generate-overview')], cwd=self.root,

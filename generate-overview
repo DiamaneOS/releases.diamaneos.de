@@ -21,5 +21,6 @@ for device in devices:
 if not releases:
     raise SystemExit("no channel selector found; refusing to write an empty overview")
 
+# Canonical JSON with a trailing newline: the form the release monitor accepts.
 with open("overview.json", "w") as output:
-    json.dump(releases, output, separators=(',', ':'))
+    output.write(json.dumps(releases, sort_keys=True, separators=(",", ":")) + "\n")
